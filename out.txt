@@ -1,0 +1,196 @@
+# Common tools
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# PyTorch tools
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader, Dataset
+import torchvision.transforms as transforms
+from torchvision import models, Module
+from torchsummary import summary
+from torchview import draw_graph
+
+# Sklearn tools
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# opencv tools
+import cv2
+
+---CELL---
+
+# Define Transformations: Augment First, Then Normalize
+transform = transforms.Compose([
+    transforms.ToPILImage(),  # Convert OpenCV (NumPy) image to PIL format
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.ToTensor(),  # Convert to Tensor [0,1], normalized pixel
+])
+
+class CustomImageDataset(Dataset):
+    def __init__(self, images, labels, transform=None):
+        """
+        images: List of NumPy arrays (H, W, C)
+        labels: List or NumPy array of shape (N,)
+        transform: Augmentation transformations
+        """
+        self.images = np.array(images)  # Keep as NumPy array, apply transforms later
+        self.labels = torch.tensor(np.array(labels), dtype=torch.long)
+        self.transform = transform  # Store the transform function
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+
+        if self.transform:
+            image = self.transform(image)  # Apply augmentations
+
+        label = self.labels[idx]
+        return image, label
+
+# Create dataset and DataLoader
+train_dataset = CustomImageDataset(X_train, y_train, transform=transform)
+train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+val_dataset = CustomImageDataset(X_val, y_val, transform=transform)
+val_dataloader = DataLoader(val_dataset, batch_size=8, shuffle=True)
+
+---CELL---
+
+# test_transform = transforms.Compose([
+#     transforms.ToPILImage(),  # Convert OpenCV (NumPy) image to PIL format
+#     transforms.ToTensor(),  # Convert to Tensor [0,1], normalized pixel
+# ])
+# test_dataset = CustomImageDataset(X_test, y_test, transform=test_transform)
+# test_dataloader = DataLoader(test_dataset, batch_size=len(X_test), shuffle=False)
+# # Validation
+# model.eval()
+# val_acc = 0.0
+# with torch.no_grad():
+#     for images, labels in test_dataloader:
+#         images, labels = images.to(device), labels.to(device).float().unsqueeze(1)
+
+#         outputs = model(images)
+#         val_acc += binary_accuracy(outputs, labels)
+# print(f"Test Accuracy: {val_acc}")
+
+---CELL---
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
+
+# Define test transform
+test_transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.ToTensor(),
+])
+
+# Create test dataset and loader
+test_dataset = CustomImageDataset(X_test, y_test, transform=test_transform)
+test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=False)
+
+# Evaluate
+model.eval()
+all_preds = []
+all_labels = []
+
+with torch.no_grad():
+    for images, labels in test_dataloader:
+        images = images.to(device)
+        labels = labels.to(device).float().unsqueeze(1)
+        outputs = model(images)
+
+        preds = (outputs >= 0.5).float()
+        all_preds.extend(preds.cpu().numpy())
+        all_labels.extend(labels.cpu().numpy())
+
+# Convert to flat numpy arrays
+all_preds = np.array(all_preds).flatten()
+all_labels = np.array(all_labels).flatten()
+
+# Compute metrics
+accuracy = accuracy_score(all_labels, all_preds)
+precision = precision_score(all_labels, all_preds)
+recall = recall_score(all_labels, all_preds)
+f1 = f1_score(all_labels, all_preds)
+
+# Print results
+print(f"✅ Test Accuracy:  {accuracy * 100:.2f}%")
+print(f"🎯 Precision:      {precision * 100:.2f}%")
+print(f"🔁 Recall:         {recall * 100:.2f}%")
+print(f"📊 F1 Score:       {f1 * 100:.2f}%")
+
+# Confusion Matrix
+cm = confusion_matrix(all_labels, all_preds)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Fake (0)', 'Real (1)'])
+disp.plot(cmap=plt.cm.Blues)
+plt.title("Confusion Matrix")
+plt.show()
+
+
+---CELL---
+
+import os
+from PIL import Image
+import torchvision.transforms as transforms
+
+# Path to the test folder (update this path if needed)
+test_folder = "/content/drive/MyDrive/Deepfake Detection/test-20250112T065939Z-001/test/real"
+
+# Check if the folder exists
+if not os.path.exists(test_folder):
+    print("❌ Invalid path. Make sure Google Drive is mounted correctly.")
+else:
+    # Image preprocessing (must match training input size)
+    test_transform = transforms.Compose([
+        transforms.Resize((112, 112)),
+        transforms.ToTensor(),
+        # Uncomment if normalization was used during training
+        # transforms.Normalize(mean=[0.5]*3, std=[0.5]*3)
+    ])
+
+    new_images = []
+    file_names = []
+
+    # Load and preprocess images
+    for file in sorted(os.listdir(test_folder)):
+        if file.lower().endswith((".png", ".jpg", ".jpeg")):
+            img_path = os.path.join(test_folder, file)
+            img = Image.open(img_path).convert("RGB")
+            img_tensor = test_transform(img)
+
+            new_images.append(img_tensor)
+            file_names.append(file)
+
+    print(f"✅ Successfully loaded {len(new_images)} images.")
+
+
+---CELL---
+
+import os
+from PIL import Image
+
+# Path to your test folder
+test_folder = "/content/drive/MyDrive/Deepfake Detection/test-20250112T065939Z-001/test/fake"
+
+# Transformation same as used during training (without augmentation)
+test_transform = transforms.Compose([
+    transforms.Resize((112, 112)),
+    transforms.ToTensor(),
+])
+
+# Load and preprocess images
+new_images = []
+file_names = []
+for file in os.listdir(test_folder):
+    if file.lower().endswith((".png", ".jpg", ".jpeg")):
+        img_path = os.path.join(test_folder, file)
+        img = Image.open(img_path).convert("RGB")
+        img_tensor = test_transform(img)
+        new_images.append(img_tensor)
+        file_names.append(file)

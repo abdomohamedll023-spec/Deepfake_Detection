@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Image Detector — AI Image Forensics</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">◈</span>
+            <span class="brand-name">Authentica AI</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#upload">Analyze</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#pipeline">Info</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-bg-grid"></div>
+        <div class="hero-particles" id="particles"></div>
+        <div class="hero-content">
+
+            <h1 class="hero-title">
+               <i> Authentica AI </i><br>
+                <span class="gradient-text"> <i>Where AI reveals the truth</i></span><br>
+            </h1>
+
+            <a href="#upload" class="cta-btn">
+                <span>Start Analysis</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+        <div class="hero-visual">
+            <img src="img00.jpeg" class="hero-image" alt="AI Detection">
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section id="upload" class="upload-section">
+        <div class="section-header">
+            <h2 class="section-title">Image Analysis Engine</h2>
+            <p class="section-subtitle">Upload any image to run deep learning forensic analysis</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-inner">
+                    <div class="upload-icon-wrap">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        <div class="upload-icon-ring"></div>
+                    </div>
+                    <h3 class="upload-title">Drag & Drop Image Here</h3>
+                    <p class="upload-hint">Supports JPG, PNG, WEBP, BMP — Max 20MB</p>
+                    <div class="upload-divider"><span>or</span></div>
+                    <label for="fileInput" class="choose-file-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                        Choose File
+                    </label>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+
+                <div class="upload-preview" id="uploadPreview">
+                    <img id="previewImg" src="" alt="Preview">
+                    <div class="preview-overlay">
+                        <span class="preview-filename" id="previewFilename"></span>
+                        <button class="remove-btn" id="removeBtn" title="Remove">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="model-selector">
+                <label class="model-label">Detection Model</label>
+                <div class="model-options">
+                    <div class="model-opt active" data-model="resnet">
+                        <div class="model-icon">🔬</div>
+                        <div>
+                            <div class="model-name">ResNet-50</div>
+                            <div class="model-desc">High accuracy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="analyze-btn" id="analyzeBtn" disabled>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+                <span>Run Analysis</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Scanning Animation Overlay -->
+    <div class="scanning-overlay" id="scanningOverlay">
+        <div class="scanning-modal">
+            <div class="scanning-visual">
+                <div class="scan-img-wrap">
+                    <img id="scanPreviewImg" src="" alt="">
+                    <div class="scan-line"></div>
+                    <div class="scan-corner tl"></div>
+                    <div class="scan-corner tr"></div>
+                    <div class="scan-corner bl"></div>
+                    <div class="scan-corner br"></div>
+                </div>
+            </div>
+            <div class="scanning-info">
+                <div class="scanning-title">Deep Learning Analysis</div>
+                <div class="scanning-status" id="scanStatus">Initializing neural network...</div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <span class="progress-pct" id="progressPct">0%</span>
+                </div>
+                <div class="scanning-steps">
+                    <div class="step" id="step1">
+                        <div class="step-dot"></div><span>Feature Extraction</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-dot"></div><span>Frequency Analysis</span>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-dot"></div><span>Model Inference</span>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-dot"></div><span>Generating Report</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Dashboard -->
+    <section class="results-section" id="resultsSection">
+        <div class="section-header">
+            <h2 class="section-title">Analysis Results</h2>
+            <p class="section-subtitle">Deep learning forensic report</p>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card verdict-card" id="verdictCard">
+                <div class="verdict-header">
+                    <span class="result-label">VERDICT</span>
+                    <span class="model-badge" id="modelBadge">ResNet-50</span>
+                </div>
+                <div class="verdict-result">
+                    <div class="verdict-icon" id="verdictIcon"></div>
+                    <div class="verdict-text" id="verdictText">FAKE</div>
+                </div>
+                <div class="confidence-wrap">
+                    <div class="confidence-label">
+                        <span>Confidence Score</span>
+                        <span class="confidence-value" id="confidenceValue">95%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                </div>
+                <div class="verdict-sub" id="verdictSub"></div>
+            </div>
+
+            <div class="result-card prob-card">
+                <div class="card-label">Probability Breakdown</div>
+                <div class="prob-chart">
+                    <div class="prob-row">
+                        <span class="prob-name">AI-Generated</span>
+                        <div class="prob-bar-wrap">
+                            <div class="prob-bar-fill fake" id="probFake"></div>
+                        </div>
+                        <span class="prob-pct" id="probFakePct">0%</span>
+                    </div>
+                    <div class="prob-row">
+                        <span class="prob-name">Authentic</span>
+                        <div class="prob-bar-wrap">
+                            <div class="prob-bar-fill real" id="probReal"></div>
+                        </div>
+                        <span class="prob-pct" id="probRealPct">0%</span>
+                    </div>
+                    <div class="prob-row">
+                        <span class="prob-name">Tampered</span>
+                        <div class="prob-bar-wrap">
+                            <div class="prob-bar-fill tamper" id="probTamper"></div>
+                        </div>
+                        <span class="prob-pct" id="probTamperPct">0%</span>
+                    </div>
+                </div>
+                <div class="radar-wrap">
+                    <canvas id="radarChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="result-card metadata-card">
+                <div class="card-label">Image Metadata</div>
+                <div class="meta-list">
+                    <div class="meta-row"><span class="meta-key">Filename</span><span class="meta-val"
+                            id="metaFilename">—</span></div>
+                    <div class="meta-row"><span class="meta-key">Dimensions</span><span class="meta-val"
+                            id="metaDimensions">—</span></div>
+                    <div class="meta-row"><span class="meta-key">File Size</span><span class="meta-val"
+                            id="metaSize">—</span></div>
+                    <div class="meta-row"><span class="meta-key">Format</span><span class="meta-val"
+                            id="metaFormat">—</span></div>
+                    <div class="meta-row"><span class="meta-key">Noise Level</span><span class="meta-val"
+                            id="metaNoise">—</span></div>
+                    <div class="meta-row"><span class="meta-key">Compression</span><span class="meta-val"
+                            id="metaCompression">—</span></div>
+                    <div class="meta-row"><span class="meta-key">Color Channels</span><span class="meta-val"
+                            id="metaChannels">RGB (3ch)</span></div>
+                    <div class="meta-row"><span class="meta-key">Bit Depth</span><span class="meta-val"
+                            id="metaBitDepth">24-bit</span></div>
+                </div>
+            </div>
+
+            <div class="result-card indicators-card">
+                <div class="card-label">Forensic Indicators</div>
+                <div class="indicators-list" id="indicatorsList"></div>
+            </div>
+
+            <div class="result-card analyzed-img-card">
+                <div class="card-label">Analyzed Image</div>
+                <div class="analyzed-img-wrap">
+                    <img id="analyzedImg" src="" alt="Analyzed Image">
+                    <div class="analyzed-overlay" id="analyzedOverlay"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-actions">
+            <button class="btn-outline" id="analyzeAnotherBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                    <path d="M8 16H3v5" />
+                </svg>
+                Analyze Another
+            </button>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">The Technology Behind</h2>
+            <p class="section-subtitle">Deep learning models and forensic techniques used in this system</p>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-card" data-delay="0">
+                <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" />
+                        <path d="M8 21h8m-4-4v4" />
+                    </svg></div>
+                <h3>Convolutional Neural Networks (CNN)</h3>
+                <p>CNNs are the foundation of image analysis in deep learning. Using multiple convolutional layers,
+                    pooling, and activation functions, CNNs automatically learn spatial hierarchies of features — from
+                    edges and textures to high-level semantic patterns that reveal manipulation artifacts.</p>
+                <div class="about-tags"><span>Conv Layers</span><span>Max
+                        Pooling</span><span>ReLU</span><span>Softmax</span></div>
+            </div>
+            <div class="about-card" data-delay="100">
+                <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                    </svg></div>
+                <h3>ResNet-50 Architecture</h3>
+                <p>Residual Networks (ResNet-50) solve the vanishing gradient problem through skip connections, enabling
+                    training of very deep networks. With 50 layers and ~25M parameters, it achieves state-of-the-art
+                    accuracy in detecting subtle pixel-level manipulations and GAN artifacts.</p>
+                <div class="about-tags"><span>Skip Connections</span><span>50 Layers</span><span>Batch
+                        Norm</span><span>ImageNet</span></div>
+            </div>
+            <div class="about-card" data-delay="300">
+                <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M2 12h20M2 12c0-3.31 4.48-6 10-6s10 2.69 10 6M2 12c0 3.31 4.48 6 10 6s10-2.69 10-6" />
+                        <path d="M12 6c2.21 0 4 2.69 4 6s-1.79 6-4 6-4-2.69-4-6 1.79-6 4-6z" />
+                    </svg></div>
+                <h3>Error Level Analysis (ELA)</h3>
+                <p>ELA is a forensic technique that detects regions of an image saved at different compression levels.
+                    Authentic images compress uniformly, while edited or spliced regions exhibit anomalous error levels
+                    — a powerful signal for localizing manipulation zones.</p>
+                <div class="about-tags"><span>JPEG Artifacts</span><span>Compression Map</span><span>Region
+                        Detection</span><span>Forensics</span></div>
+            </div>
+            <div class="about-card" data-delay="400">
+                <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M3 3h18v18H3z" />
+                        <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+                    </svg></div>
+                <h3>Frequency Domain Analysis</h3>
+                <p>Using Discrete Fourier Transform (DFT) and wavelet decomposition, the system analyzes an image's
+                    frequency spectrum. GAN-generated images and deepfakes often leave distinctive spectral fingerprints
+                    invisible to the human eye but detectable by the model.</p>
+                <div class="about-tags"><span>FFT</span><span>Wavelet</span><span>Spectral Analysis</span><span>GAN
+                        Detection</span></div>
+            </div>
+            <div class="about-card" data-delay="500">
+                <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg></div>
+                <h3>Transfer Learning</h3>
+                <p>By fine-tuning pretrained models on specialized fake image datasets (FaceForensics++, CASIA, NIST
+                    Nimble), the system achieves high accuracy without training from scratch. Transfer learning
+                    preserves rich feature representations while adapting to the forensics domain.</p>
+                <div class="about-tags"><span>Fine-tuning</span><span>FaceForensics++</span><span>CASIA
+                        Dataset</span><span>Domain Adaptation</span></div>
+            </div>
+        </div>
+
+        <div class="pipeline-section">
+            <h3 class="pipeline-title">Detection Pipeline</h3>
+            <div id="pipeline" class="pipeline">
+                <div class="pipe-step">
+                    <div class="pipe-num">01</div>
+                    <div class="pipe-name">Input</div>
+                    <div class="pipe-desc">Image uploaded & validated</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-step">
+                    <div class="pipe-num">02</div>
+                    <div class="pipe-name">Preprocessing</div>
+                    <div class="pipe-desc">Normalize & resize</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-step">
+                    <div class="pipe-num">03</div>
+                    <div class="pipe-name">Feature Extraction</div>
+                    <div class="pipe-desc">ResNet</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-step">
+                    <div class="pipe-num">04</div>
+                    <div class="pipe-name">Classification</div>
+                    <div class="pipe-desc">Softmax probability</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-step">
+                    <div class="pipe-num">05</div>
+                    <div class="pipe-name">Report</div>
+                    <div class="pipe-desc">Verdict + confidence</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="nav-brand" style="justify-content:center">
+                <span class="brand-icon">◈</span>
+                <span class="brand-name">Authentica AI</span>
+            </div>
+            <p class="footer-desc">Project — Authentica AI Where AI reveals the truth</p>
+            <p class="footer-copy">© 2026 · Built with HTML5, CSS3 & JavaScript</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
