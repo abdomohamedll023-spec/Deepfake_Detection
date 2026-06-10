@@ -88,11 +88,14 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 700;
-    font-size: 1.2rem;
-    letter-spacing: -0.02em;
 }
-
+.main-title {
+    font-size: 4rem;
+    font-weight: 900;
+}
+.gradient-text {
+    font-size: 1.8rem;
+}
 .brand-icon {
     color: var(--blue);
     font-size: 1.4rem;
@@ -130,11 +133,23 @@ body {
     display: flex;
     align-items: center;
     gap: 4rem;
-    padding: 100px 5% 60px;
+    padding: 64px 5% 0px;
     position: relative;
     overflow: hidden;
 }
+.hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
 
+.hero-image {
+    width: 100%;
+    max-width: 800px;
+    max-height: calc(100vh - 100px);
+    object-fit: contain;
+}
 .hero-bg-grid {
     position: absolute;
     inset: 0;
@@ -266,12 +281,6 @@ body {
 .cta-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
-}
-
-/* HERO CARD */
-.hero-image {
-    width: 650px;
-    height: 550px;
 }
 
 @keyframes blink {
@@ -1517,7 +1526,7 @@ body {
     .hero-visual {
         flex: none;
         width: 100%;
-        max-width: 380px;
+        /* max-width: 450px; */
     }
 
     .hero-stats {
